@@ -1,10 +1,32 @@
 #!/usr/bin/php
 <?php
-require_once('path.inc');
-require_once('get_host_info.inc');
-require_once('rabbitMQLib.inc');
+require_once('lib/path.inc');
+require_once('lib/get_host_info.inc');
+require_once('lib/rabbitMQLib.inc');
 
-$client = new rabbitMQClient("testRabbitMQ.ini","testServer");
+session_start();
+
+$email = $_POST["email"];
+$user = $_POST["user"];
+$pword = $_POST["pword"];
+$error = 0;
+if(!isset($email)){
+	echo "please fill email";
+	$error = 1;
+}
+if(!isset($user)){
+	echo "please fill user";
+	$error = 1;
+}
+if(!isset($pword)){
+	echo "please fill pasword";
+	$error = 1;
+}
+if($error == 1){
+	exit();
+}	
+
+$client = new rabbitMQClient("testRabbitMQ.ini","dbServer");
 if (isset($argv[1]))
 {
   $msg = $argv[1];
@@ -15,16 +37,26 @@ else
 }
 
 $request = array();
-$request['type'] = "Login";
-$request['username'] = "steve";
-$request['password'] = "password";
+$request['type'] = "create_user";
+$request['email'] = $email;
+$request['username'] = $user;
+$request['password'] = $pword;
 $request['message'] = $msg;
+
 $response = $client->send_request($request);
 //$response = $client->publish($request);
 
-echo "client received response: ".PHP_EOL;
-print_r($response);
-echo "\n\n";
+//echo "client received response: ".PHP_EOL;
+//print_r($response);
+//echo "\n\n";
+
+if($response == 1){
+	
+	echo '<script type="text/javascript">
+        window.location.replace(\'index.html\');
+        </script>';
+
+}
 
 echo $argv[0]." END".PHP_EOL;
-
+?>
