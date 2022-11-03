@@ -53,13 +53,16 @@ $response = array();
 $response = $client->send_request($request);
 //$response = $client->publish($request);
 
-//problems occurs here
+
 if($response[0] == 1){	
 	$_SESSION['sessionid'] = $response[1];
+        $_SESSION['uid'] = $response[2];
 	echo '<script type="text/javascript">		
-	sessionStorage.setItem(\'id\',', $response[1], ');
-	window.location.replace("index.html");
+	sessionStorage.setItem("id",', $response[1], ');
+	sessionStorage.setItem("uid",'.$response[2].'); 
+	window.location.replace("home.php");
 	</script>';
-} 
-
+}else{
+	header("Location: login.html");
+}
 ?>

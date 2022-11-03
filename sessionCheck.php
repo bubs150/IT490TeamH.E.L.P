@@ -1,9 +1,10 @@
+#!/usr/bin/php
 <?php
-require_once('lib/path.inc');
-require_once('lib/get_host_info.inc');
-require_once('lib/rabbitMQLib.inc');
+require('lib/path.inc');
+require('lib/get_host_info.inc');
+require('lib/rabbitMQLib.inc');
 
-session_start();
+//session_start();
 
 $client = new rabbitMQClient("testRabbitMQ.ini","dbServer");
 if (isset($argv[1]))
@@ -17,9 +18,12 @@ else
 
 $request = array();
 $request['type'] = "validate_session";
-$request['sessionid'] = $_POST["id"];
+$request['sessionid'] = $_POST["seshid"];
 
 $response = $client->send_request($request);
-$_SESSION['validsession'] = $response;
-echo 1;
+echo "<script>
+	sessionStorage.setItem('checkResponse',".$response.");
+	</script>"
+
+
 ?>

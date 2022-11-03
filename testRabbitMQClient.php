@@ -4,6 +4,30 @@ require_once('lib/path.inc');
 require_once('lib/get_host_info.inc');
 require_once('lib/rabbitMQLib.inc');
 
+//logging stuff
+require_once __DIR__.'/vendor/autoload.php';
+
+use PhpAmqpLib\Connection\AMQPStreamConnection;
+use PhpAmqpLib\Message\AMQPMessage;
+
+
+//create connection to rbmq for logging
+$connection = new AMQPStreamConnection('172.23.46.192', '5672', 'test', 'test', 'testHost');
+//create channel
+$channel = $connection->channel();
+//connect to logs exchange
+$channel->exchange_declare('logs', 'fanout', false, false, false);
+
+function publishLog($errorMsg)
+{
+    global $channel;
+    $logMsg = ($errorMsg. " on " . date("Y.m.d"). " @ ". date("h:i:sa"). " @ ". gethostname());
+   //set push msg to error message
+    $msg = new AMQPMessage($logMsg);
+    // send msg to log file(s)
+    $channel -> basic_publish($msg, 'logs');
+}
+
 session_start();
 
 $email = $_POST["email"];
@@ -11,6 +35,7 @@ $user = $_POST["user"];
 $pword = $_POST["pword"];
 $error = 0;
 if(!isset($email)){
+	publishLog("please fill");
 	echo "please fill email";
 	$error = 1;
 }
